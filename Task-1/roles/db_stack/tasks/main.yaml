@@ -1,0 +1,58 @@
+- name: Ensure project and backup directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    mode: "0755"
+  loop:
+    - "{{ db_stack_project_dir }}"
+    - "{{ db_stack_backup_dir }}"
+
+- name: Render docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ db_stack_project_dir }}/docker-compose.yml"
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    mode: "0644"
+  notify: restart docker compose stack
+
+- name: Render PgBouncer config
+  template:
+    src: pgbouncer.ini.j2
+    dest: "{{ db_stack_project_dir }}/pgbouncer.ini"
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    mode: "0640"
+  notify: restart docker compose stack
+
+- name: Render PgBouncer userlist
+  template:
+    src: userlist.txt.j2
+    dest: "{{ db_stack_project_dir }}/userlist.txt"
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    mode: "0640"
+  notify: restart docker compose stack
+
+- name: Install pg_backup.sh
+  template:
+    src: pg_backup.sh.j2
+    dest: "{{ db_stack_project_dir }}/pg_backup.sh"
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    mode: "0750"
+
+- name: Create cron job for daily backup
+  cron:
+    name: "Postgres daily backup"
+    user: "{{ ansible_env.USER }}"
+    minute: "0"
+    hour: "3"
+    job: "{{ db_stack_project_dir }}/pg_backup.sh >> /home/{{ ansible_env.USER }}/pg_backup.log 2>&1"
+
+- name: Start docker compose stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ db_stack_project_dir }}"
+    state: present

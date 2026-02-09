@@ -1,0 +1,6 @@
+- hosts: localhost
+  become: false
+  connection: local
+  gather_facts: true
+  roles:
+    - db_stack

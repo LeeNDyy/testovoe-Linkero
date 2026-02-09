@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: "postgres:{{ db_stack_pg_version }}"
+    container_name: db_postgres
+    environment:
+      POSTGRES_USER: "{{ db_stack_pg_user }}"
+      POSTGRES_PASSWORD: "{{ db_stack_pg_password }}"
+      POSTGRES_DB: "{{ db_stack_pg_db }}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - db_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{ db_stack_pg_user }} -d {{ db_stack_pg_db }}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: db_pgbouncer
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - "./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro"
+      - "./userlist.txt:/etc/pgbouncer/userlist.txt:ro"
+    ports:
+      - "127.0.0.1:6432:6432"
+    networks:
+      - db_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h postgres -p 5432 -U {{ db_stack_pg_user }} -d {{ db_stack_pg_db }}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  db_net:
+
+volumes:
+  pgdata:

@@ -1,0 +1,16 @@
+db_stack_project_dir: "{{ ansible_env.HOME }}/db_stack"
+db_stack_backup_dir: "{{ ansible_env.HOME }}/db_stack/backups"
+
+db_stack_pg_version: "16"
+db_stack_pg_user: "app_user"
+db_stack_pg_db: "app_db"
+
+
+db_stack_pgbouncer_user: "pgbouncer"
+db_stack_app_user: "app_user"
+
+db_stack_vault_file: "vault.yml"
+
+#password for services
+db_stack_pg_password: "default_pg_pass"
+db_stack_pgbouncer_password: "default_pgb_pass"
