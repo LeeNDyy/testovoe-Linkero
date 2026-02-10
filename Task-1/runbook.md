@@ -19,11 +19,6 @@ cd https://github.com/LeeNDyy/testovoe-Linkero.git
 #Encrypt Ansible vault, dont't use it if you don't needed, just deploy
 #and write password Ansible
 
-ansible-vault encrypt ./Task-1/db_stack/roles/vars/vault.yaml
-
-password: Ansible
-
-
 cd ./Task-1
 ansible-vault encrypt ./Task-1/db_stack/roles/vars/vault.yaml
 
