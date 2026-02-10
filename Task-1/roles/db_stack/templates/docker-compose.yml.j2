@@ -1,30 +1,14 @@
 services:
   postgres:
     image: "postgres:{{ db_stack_pg_version }}"
-<<<<<<< HEAD
-    container_name: db_postgres
-=======
-    hostname: postgres  
->>>>>>> 6c066a0 (answered on Task-1 and Task-3)
+    hostname: postgres
     environment:
       POSTGRES_USER: "{{ db_stack_pg_user }}"
       POSTGRES_PASSWORD: "{{ db_stack_pg_password }}"
       POSTGRES_DB: "{{ db_stack_pg_db }}"
+      POSTGRES_HOST_AUTH_METHOD: md5  
     volumes:
       - pgdata:/var/lib/postgresql/data
-<<<<<<< HEAD
-    networks:
-      - db_net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {{ db_stack_pg_user }} -d {{ db_stack_pg_db }}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  pgbouncer:
-    image: edoburu/pgbouncer
-    container_name: db_pgbouncer
-=======
       - "./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro"
     networks:
       - db_net
@@ -33,12 +17,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s  
+      start_period: 30s
 
   pgbouncer:
     image: edoburu/pgbouncer:latest
     hostname: pgbouncer
->>>>>>> 6c066a0 (answered on Task-1 and Task-3)
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,25 +33,14 @@ services:
     networks:
       - db_net
     healthcheck:
-<<<<<<< HEAD
-      test: ["CMD-SHELL", "pg_isready -h postgres -p 5432 -U {{ db_stack_pg_user }} -d {{ db_stack_pg_db }}"]
+      test: ["CMD", "pg_isready", "-h", "postgres", "-U", "{{ db_stack_pg_user }}"]
       interval: 10s
       timeout: 5s
-      retries: 5
-
-networks:
-  db_net:
-=======
-      test: ["CMD-SHELL", "echo 'SELECT 1' | nc localhost 6432"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 40s
 
 networks:
   db_net:
     driver: bridge
->>>>>>> 6c066a0 (answered on Task-1 and Task-3)
-
 volumes:
   pgdata:

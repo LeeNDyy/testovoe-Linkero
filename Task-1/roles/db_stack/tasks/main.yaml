@@ -64,25 +64,35 @@
   community.docker.docker_compose_v2:
     project_src: "{{ db_stack_project_dir }}"
     state: present
-<<<<<<< HEAD
-=======
 
 - name: Wait for postgres ready
   shell: >
     cd {{ db_stack_project_dir }} &&
-    docker compose ps postgres --format json | jq -r '.[0].Name' | xargs -I {} docker compose exec -T {} pg_isready -U {{ db_stack_pg_user }}
+    docker compose ps postgres --format json | jq -r '.\[0\].Name' | xargs -I {} docker compose exec -T {} pg_isready -U {{ db_stack_pg_user }}
   register: pg_ready
   retries: 30
   delay: 10
   until: pg_ready.rc == 0
   changed_when: false
 
-- name: Wait for PgBouncer ready
-  shell: pg_isready -h 127.0.0.1 -p 6432 -U {{ db_stack_pg_user }} -d {{ db_stack_pg_db }}
-  register: pgbouncer_ready
-  retries: 30
-  delay: 10
-  until: pgbouncer_ready.rc == 0
+- name: Wait for PgBouncer to be ready on localhost
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 6432
+    state: started
+    delay: 5
+    timeout: 120
+  vars:
+    ansible_connection: local
+
+- name: Verify PgBouncer works (environment PGPASSWORD)
+  ansible.builtin.command: 
+    cmd: psql -h 127.0.0.1 -p 6432 -U {{ db_stack_app_user }} {{ db_stack_pg_db }} -c "SELECT 1;"
+  environment:
+    PGPASSWORD: "{{ db_stack_pgbouncer_password }}"
+  register: pgbouncer_test
+  retries: 6
+  delay: 5
+  until: pgbouncer_test.rc == 0
   changed_when: false
 
->>>>>>> 6c066a0 (answered on Task-1 and Task-3)

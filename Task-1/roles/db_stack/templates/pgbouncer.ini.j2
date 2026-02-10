@@ -1,21 +1,4 @@
-[databases]
-<<<<<<< HEAD
-{{ db_stack_pg_db }} = host=postgres port=5432 dbname={{ db_stack_pg_db }} user={{ db_stack_pg_user }}
-
-[pgbouncer]
-listen_addr = 0.0.0.0
-listen_port = 6432
-auth_type = md5
-auth_file = /etc/pgbouncer/userlist.txt
-pool_mode = transaction
-max_client_conn = 100
-default_pool_size = 20
-log_connections = 1
-log_disconnections = 1
-admin_users = {{ db_stack_pgbouncer_user }}
-stats_users = {{ db_stack_pgbouncer_user }}
-=======
-app_db = host=postgres port=5432 dbname=app_db
+app_db = host=postgres port=5432 dbname=app_db user=app_user password=1234
 
 [pgbouncer]
 pool_mode = transaction
@@ -25,9 +8,9 @@ reserve_pool_size = 5
 listen_port = 6432
 listen_addr = *
 auth_file = /etc/pgbouncer/userlist.txt
-auth_type = plain  
+auth_type = plain
 admin_users = app_user
 stats_users = app_user
 logfile = /dev/stdout
 pidfile = /tmp/pgbouncer.pid
->>>>>>> 6c066a0 (answered on Task-1 and Task-3)
+
