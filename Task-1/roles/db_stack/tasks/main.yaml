@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 ---
->>>>>>> 6c066a0 (answered on Task-1 and Task-3)
 - name: Ensure project and backup directories exist
   file:
     path: "{{ item }}"
@@ -54,16 +51,14 @@
     user: "{{ ansible_env.USER }}"
     minute: "0"
     hour: "3"
-<<<<<<< HEAD
-    job: "{{ db_stack_project_dir }}/pg_backup.sh >> /home/{{ ansible_env.USER }}/pg_backup.log 2>&1"
-=======
     job: "{{ db_stack_project_dir }}/pg_backup.sh >> /home/{{ ansible_env.USER }}/backup.log 2>&1"
->>>>>>> 6c066a0 (answered on Task-1 and Task-3)
 
-- name: Start docker compose stack
-  community.docker.docker_compose_v2:
-    project_src: "{{ db_stack_project_dir }}"
-    state: present
+- name: Start docker compose stack using a direct command
+  ansible.builtin.command:
+    cmd: docker compose up -d --force-recreate
+    chdir: "{{ db_stack_project_dir }}"
+  register: compose_up_result
+  changed_when: "'Creating' in compose_up_result.stdout or 'Recreating' in compose_up_result.stdout"
 
 - name: Wait for postgres ready
   shell: >
@@ -95,4 +90,10 @@
   delay: 5
   until: pgbouncer_test.rc == 0
   changed_when: false
+
+
+
+
+
+
 
